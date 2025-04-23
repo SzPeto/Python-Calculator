@@ -1,6 +1,6 @@
 
 import sys
-from PyQt5.QtGui import QGuiApplication, QFont
+from PyQt5.QtGui import QGuiApplication, QFont, QKeyEvent
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QWidget, QVBoxLayout, QHBoxLayout,
                              QGridLayout, QLineEdit, QPushButton)
 
@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         self.operator = ""
         self.result = float(0)
         self.operator_allowed = True
+        self.setFocus() # Necessary for key event, for example in order for line edit to not steal key focus
 
     def initUI(self): # Good practice to initialize the UI through initUI
         self.setWindowTitle("Calculator")
@@ -59,9 +60,7 @@ class MainWindow(QMainWindow):
             self.result = float(self.display.text())
         print(f"Result = {self.result}")
 
-    def on_button_clicked(self):
-        sender = self.sender()
-        text = sender.text()
+    def handle_input(self, text):
 
         # After operator input clear the screen
         if self.cls:
@@ -135,7 +134,7 @@ class MainWindow(QMainWindow):
             else:
                 self.display.setText(self.display.text() + "9")
             self.operator_allowed = True
-        elif text == "C":
+        elif text.upper() == "C":
             self.display.setText("0")
             self.result = float(0)
             self.operator_allowed = True
@@ -181,63 +180,61 @@ class MainWindow(QMainWindow):
                 self.display.setText(str(float_result))
             self.operator_allowed = True
 
+    def on_button_clicked(self):
+        sender = self.sender()
+        text = sender.text()
+        self.handle_input(text)
 
-
+    def keyPressEvent(self, event: QKeyEvent):
+        text = event.text()
+        if event.key() == 16777221:
+            text = "="
+        self.handle_input(text)
 
     def create_buttons(self):
+        #Three quotes for multi len string - this css-like styling includes the whole QButton group
+        self.setStyleSheet("""
+            QPushButton {
+                font-family: Bahnschrift;
+                font-size: 30px;
+            }
+        """)
+
         self.button_0 = QPushButton("0", self)
-        self.button_0.setFont(QFont("Bahnschrift", 20))
         self.button_0.clicked.connect(self.on_button_clicked)
         self.button_1 = QPushButton("1", self)
-        self.button_1.setFont(QFont("Bahnschrift", 20))
         self.button_1.clicked.connect(self.on_button_clicked)
         self.button_2 = QPushButton("2", self)
-        self.button_2.setFont(QFont("Bahnschrift", 20))
         self.button_2.clicked.connect(self.on_button_clicked)
         self.button_3 = QPushButton("3", self)
-        self.button_3.setFont(QFont("Bahnschrift", 20))
         self.button_3.clicked.connect(self.on_button_clicked)
         self.button_4 = QPushButton("4", self)
-        self.button_4.setFont(QFont("Bahnschrift", 20))
         self.button_4.clicked.connect(self.on_button_clicked)
         self.button_5 = QPushButton("5", self)
-        self.button_5.setFont(QFont("Bahnschrift", 20))
         self.button_5.clicked.connect(self.on_button_clicked)
         self.button_6 = QPushButton("6", self)
-        self.button_6.setFont(QFont("Bahnschrift", 20))
         self.button_6.clicked.connect(self.on_button_clicked)
         self.button_7 = QPushButton("7", self)
-        self.button_7.setFont(QFont("Bahnschrift", 20))
         self.button_7.clicked.connect(self.on_button_clicked)
         self.button_8 = QPushButton("8", self)
-        self.button_8.setFont(QFont("Bahnschrift", 20))
         self.button_8.clicked.connect(self.on_button_clicked)
         self.button_9 = QPushButton("9", self)
-        self.button_9.setFont(QFont("Bahnschrift", 20))
         self.button_9.clicked.connect(self.on_button_clicked)
         self.button_add = QPushButton("+", self)
-        self.button_add.setFont(QFont("Bahnschrift", 20))
         self.button_add.clicked.connect(self.on_button_clicked)
         self.button_subtract = QPushButton("-", self)
-        self.button_subtract.setFont(QFont("Bahnschrift", 20))
         self.button_subtract.clicked.connect(self.on_button_clicked)
         self.button_multiply = QPushButton("*", self)
-        self.button_multiply.setFont(QFont("Bahnschrift", 20))
         self.button_multiply.clicked.connect(self.on_button_clicked)
         self.button_divide = QPushButton("/", self)
-        self.button_divide.setFont(QFont("Bahnschrift", 20))
         self.button_divide.clicked.connect(self.on_button_clicked)
         self.button_equals = QPushButton("=", self)
-        self.button_equals.setFont(QFont("Bahnschrift", 20))
         self.button_equals.clicked.connect(self.on_button_clicked)
         self.button_clear_screen = QPushButton("C", self)
-        self.button_clear_screen.setFont(QFont("Bahnschrift", 20))
         self.button_clear_screen.clicked.connect(self.on_button_clicked)
         self.button_decimal = QPushButton(".", self)
-        self.button_decimal.setFont(QFont("Bahnschrift", 20))
         self.button_decimal.clicked.connect(self.on_button_clicked)
         self.button_plus_minus = QPushButton("+/-", self)
-        self.button_plus_minus.setFont(QFont("Bahnschrift", 20))
         self.button_plus_minus.clicked.connect(self.on_button_clicked)
 
         #Adding the buttons to grid layout
